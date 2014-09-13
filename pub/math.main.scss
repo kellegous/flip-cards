@@ -1,0 +1,98 @@
+body {
+  background-color: #f6f6f6;
+  color: #444;
+  font-family: 'Roboto', sans-serif;
+}
+
+#root {
+  -webkit-perspective: 2000;
+  -moz-perspective: 2000;
+}
+
+.cards {
+  position: relative;
+  width: 500px;
+  height: 800px;
+  transition: transform 300ms ease-in-out;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+}
+
+.cards.enflip {
+  transform: rotateY(180deg);
+}
+
+.cards.deflip {
+  transform: rotateY(0deg);
+}
+
+.card {
+  position: absolute;
+  background-color: #fff;
+  font-size: 200px;
+  margin: 0 auto;
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  top: 0;
+  left: 0;
+  height: 800px;
+  width: 500px;
+
+  &.r {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+  }
+
+  &.f {
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -webkit-transform: rotateY(0deg);
+    -moz-transform: rotateY(0deg);
+  }
+
+  >.a {
+    position: absolute;
+    top: 20px;
+    left: 120px;
+    width: 300px;
+    height: 220px;
+    text-align: right;
+  }
+  >.b {
+    position: absolute;
+    top: 240px;
+    left: 120px;
+    width: 300px;
+    height: 220px;
+    text-align: right;
+  }
+  >.op {
+    position: absolute;
+    top: 240px;
+    left: 0;
+    width: 160px;
+    text-align: right;
+  }
+  >.ans {
+    position: absolute;
+    top: 20px + 200px + 300px;
+    left: 20px;
+    right: 20px;
+    border-top: 3px solid #000;
+
+    >input {
+      position: absolute;
+      width: 300px;
+      height: 220px;
+      left: 120px;
+      text-align: right;
+      border: none;
+      outline: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 200px;
+      color: #444;
+    }
+  }
+}
