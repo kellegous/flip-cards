@@ -124,21 +124,37 @@ var Card = React.createClass({
     var self = this;
 
     Model.nextDidLoad.tap(function(model, problem) {
-      self.setState({
-        face: problem,
-        rear: problem
-      });
-      
-      var af = self.refs.af.getDOMNode(),
-          ar = self.refs.ar.getDOMNode();
-      af.value = ar.value = '';
-      af.focus();
+      var a = self.hiddenAnswerRef().getDOMNode();
+      if (self.state.onFront) {
+        self.setState({
+          rear: problem,
+          onFront: false
+        });
+        self.getDOMNode().classList.add('enflip');
+      } else {
+        self.setState({
+          face: problem,
+          onFront: true
+        });
+        self.getDOMNode().classList.remove('enflip');
+      }
+
+      a.value = '';
+      a.focus();
     });
 
     window.addEventListener('resize', function() {
       self.windowDidResize(event);
     }, false);
 
+  },
+
+  hiddenAnswerRef: function() {
+    return this.state.onFront ? this.refs.ar : this.refs.af;
+  },
+
+  currentAnswerRef: function() {
+    return this.state.onFront ? this.refs.af : this.refs.ar;
   },
 
   componentDidMount: function() {
@@ -148,7 +164,8 @@ var Card = React.createClass({
   getInitialState: function() {
     return {
       face: Problem.emtpy(),
-      rear: Problem.emtpy()
+      rear: Problem.emtpy(),
+      onFront: false
     }
   },
 
@@ -158,7 +175,6 @@ var Card = React.createClass({
         ww = window.innerWidth,
         wh = window.innerHeight;
 
-    console.log(wh, rect.height);
     el.style.setProperty('top', (wh/2 - rect.height/2) + 'px', '');
     el.style.setProperty('left', (ww/2 - rect.width/2) + 'px', '');
   },
@@ -170,11 +186,10 @@ var Card = React.createClass({
   inputHasKeyDown: function(event) {
     switch (event.keyCode) {
     case 13: // enter
-      Model.check(parseInt(this.refs.af.getDOMNode().value));
+      Model.check(parseInt(this.currentAnswerRef().getDOMNode().value));
       break;
     case 27: // esc
-      this.refs.af.getDOMNode().value = '';
-      this.refs.ar.getDOMNode().value = '';
+      this.currentAnswerRef().getDOMNode().value = '';
       break;
     }
   },
