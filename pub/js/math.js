@@ -4,6 +4,14 @@ var Rand = function(range) {
   return ((range+1) * Math.random()) | 0;
 }
 
+var CenterContent = function(el) {
+    var rect = el.getBoundingClientRect(),
+        ww = window.innerWidth,
+        wh = window.innerHeight;
+    el.style.setProperty('top', (wh/2 - rect.height/2) + 'px', '');
+    el.style.setProperty('left', (ww/2 - rect.width/2) + 'px', '');
+};
+
 var Signal = function() {};
 Signal.prototype = {
   listeners: [],
@@ -137,14 +145,23 @@ var Card = React.createClass({
       }
     });
 
-    window.addEventListener('resize', function() {
-      self.windowDidResize(event);
-    }, false);
+    Model.endWasReached.tap(function() {
+      self.setState({
+        visible: false
+      });
+    });
+
 
   },
 
   componentDidUpdate: function(props, state) {
     var root = this.getDOMNode();
+
+    if (!this.state.visible) {
+      root.style.setProperty('opacity', '0', '');
+      return;
+    }
+
     if (this.state.onFront) {
       root.classList.remove('enflip');
     } else {
@@ -164,25 +181,20 @@ var Card = React.createClass({
   },
 
   componentDidMount: function() {
-    this.windowDidResize();
+    var self = this;
+    window.addEventListener('resize', function() {
+      CenterContent(self.getDOMNode());
+    }, false);
+    CenterContent(self.getDOMNode());
   },
 
   getInitialState: function() {
     return {
       face: Problem.emtpy(),
       rear: Problem.emtpy(),
-      onFront: false
+      onFront: false,
+      visible: true
     }
-  },
-
-  windowDidResize: function() {
-    var el = this.getDOMNode(),
-        rect = el.getBoundingClientRect(),
-        ww = window.innerWidth,
-        wh = window.innerHeight;
-
-    el.style.setProperty('top', (wh/2 - rect.height/2) + 'px', '');
-    el.style.setProperty('left', (ww/2 - rect.width/2) + 'px', '');
   },
 
   inputDidBlur: function(event) {
@@ -229,13 +241,57 @@ var Card = React.createClass({
   }
 });
 
+var Score = React.createClass({
+  componentWillMount: function() {
+    var self = this;
+    Model.endWasReached.tap(function(model) {
+      self.setState({
+        score: 100,
+        visible: true
+      });
+    });
+  },
+
+  componentDidMount: function() {
+    this.getDOMNode().style.setProperty('opacity', '0', '');
+
+    var self = this;
+    window.addEventListener('resize', function(event) {
+      CenterContent(self.getDOMNode());
+    }, false);
+    CenterContent(self.getDOMNode());
+  },
+
+  getInitialState: function() {
+    return {
+      score: 0,
+      visible: false
+    };
+  },
+
+  componentDidUpdate: function() {
+    this.getDOMNode().style.setProperty(
+      'opacity',
+      this.state.visible ? '1.0' : '0.0',
+      '');
+  },
+
+  render: function() {
+    return (
+      <div className="score">
+        <div className="heart">❤</div>
+        <div className="text">{this.state.score}</div>
+      </div>
+    );
+  }
+});
+
 React.renderComponent(
-  <Card/>,
+  <div>
+    <Card />
+    <Score />
+  </div>,
   document.getElementById('root')
 );
 
 Model.init(5);
-
-Model.endWasReached.tap(function(model) {
-  console.log('end', model);
-});
