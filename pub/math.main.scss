@@ -13,7 +13,7 @@ body {
   position: relative;
   width: 500px;
   height: 800px;
-  transition: transform,opacity 300ms ease-in-out;
+  transition: transform 300ms ease-in-out,opacity 300ms ease-in-out;
   -webkit-transform-style: preserve-3d;
   -moz-transform-style: preserve-3d;
 }
