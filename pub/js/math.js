@@ -124,29 +124,35 @@ var Card = React.createClass({
     var self = this;
 
     Model.nextDidLoad.tap(function(model, problem) {
-      var a = self.hiddenAnswerRef().getDOMNode();
       if (self.state.onFront) {
         self.setState({
           rear: problem,
           onFront: false
         });
-        self.getDOMNode().classList.add('enflip');
       } else {
         self.setState({
           face: problem,
           onFront: true
         });
-        self.getDOMNode().classList.remove('enflip');
       }
-
-      a.value = '';
-      a.focus();
     });
 
     window.addEventListener('resize', function() {
       self.windowDidResize(event);
     }, false);
 
+  },
+
+  componentDidUpdate: function(props, state) {
+    var root = this.getDOMNode();
+    if (this.state.onFront) {
+      root.classList.remove('enflip');
+    } else {
+      root.classList.add('enflip');
+    }
+    var active = this.currentAnswerRef().getDOMNode();
+    active.value = '';
+    active.focus();
   },
 
   hiddenAnswerRef: function() {
@@ -180,7 +186,7 @@ var Card = React.createClass({
   },
 
   inputDidBlur: function(event) {
-    // this.refs.ans.getDOMNode().focus();
+    this.currentAnswerRef().getDOMNode().focus();
   },
 
   inputHasKeyDown: function(event) {
