@@ -12,6 +12,16 @@ var CenterContent = function(el) {
     el.style.setProperty('left', (ww/2 - rect.width/2) + 'px', '');
 };
 
+var FormatNumber = function(n) {
+  var s = '' + n,
+      a = [];
+  while (s.length > 0) {
+    a.unshift(s.substring(s.length - 3));
+    s = s.substring(0, s.length - 3);
+  }
+  return a.join(',');
+}
+
 var Signal = function() {};
 Signal.prototype = {
   listeners: [],
@@ -97,6 +107,7 @@ var Model = {
       problems.push(Problem.random(12));
     }
     this.problems = problems;
+    this.score = 0;
     this.current = -1;
     this.next();
   },
@@ -122,9 +133,18 @@ var Model = {
       return false;
     }
 
-    this.next();
-  }
+    if (this.current == 0) {
+      this.score += 1000;
+    } else {
+      var dt = Date.now() - this.start;
+      this.score += Math.max(10000 - dt, 0) / 10;
+    }
+    this.start = Date.now();
 
+    this.next();
+
+    return true;
+  }
 };
 
 var Card = React.createClass({
@@ -246,7 +266,7 @@ var Score = React.createClass({
     var self = this;
     Model.endWasReached.tap(function(model) {
       self.setState({
-        score: 100,
+        score: Model.score | 0,
         visible: true
       });
     });
@@ -280,7 +300,7 @@ var Score = React.createClass({
     return (
       <div className="score">
         <div className="heart">❤</div>
-        <div className="text">{this.state.score}</div>
+        <div className="text">{ FormatNumber(this.state.score) }</div>
       </div>
     );
   }
@@ -294,4 +314,4 @@ React.renderComponent(
   document.getElementById('root')
 );
 
-Model.init(5);
+Model.init(20);
