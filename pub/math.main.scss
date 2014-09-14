@@ -16,6 +16,25 @@ body {
   transition: transform 300ms ease-in-out,opacity 300ms ease-in-out;
   -webkit-transform-style: preserve-3d;
   -moz-transform-style: preserve-3d;
+
+  >.frown {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: 300px 300px;
+    background-image: url("frown.svg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #fff;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease-in-out;
+    backface-visibility: visible;
+    transform: rotateY(0deg);
+  }
+
 }
 
 .cards.enflip {

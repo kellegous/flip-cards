@@ -182,6 +182,15 @@ var Card = React.createClass({
       return;
     }
 
+    var frown = this.refs.frown.getDOMNode();
+    if (this.state.wrong) {
+      frown.style.setProperty('opacity', '1', '');
+      // frown.style.setProperty('display', 'block', '');
+    } else {
+      // frown.style.setProperty('display', 'none', '');
+      frown.style.setProperty('opacity', '0', '');
+    }
+
     if (this.state.onFront) {
       root.classList.remove('enflip');
     } else {
@@ -213,7 +222,8 @@ var Card = React.createClass({
       face: Problem.emtpy(),
       rear: Problem.emtpy(),
       onFront: false,
-      visible: true
+      visible: true,
+      wrong: false
     }
   },
 
@@ -222,9 +232,16 @@ var Card = React.createClass({
   },
 
   inputHasKeyDown: function(event) {
+    var self = this;
     switch (event.keyCode) {
     case 13: // enter
-      Model.check(parseInt(this.currentAnswerRef().getDOMNode().value));
+      var ok = Model.check(parseInt(this.currentAnswerRef().getDOMNode().value));
+      if (!ok) {
+        self.setState({wrong: true});
+        setTimeout(function() {
+          self.setState({wrong: false});
+        }, 500);
+      }
       break;
     case 27: // esc
       this.currentAnswerRef().getDOMNode().value = '';
@@ -256,6 +273,8 @@ var Card = React.createClass({
                 onKeyDown={this.inputHasKeyDown} />
           </div>
         </div>
+
+        <div ref="frown" className="frown"></div>
       </div>
     );
   }
