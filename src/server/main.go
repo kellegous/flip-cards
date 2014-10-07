@@ -28,7 +28,7 @@ func main() {
   r := pork.NewRouter(nil, nil, nil)
 
   r.RespondWith("/", pork.Content(pork.NewConfig(pork.None),
-    http.Dir(filepath.Join(root, "pub"))))
+    http.Dir(filepath.Join(root, "src/pub"))))
 
   if err := http.ListenAndServe(*flagAddr, r); err != nil {
     panic(err)
