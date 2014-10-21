@@ -4,6 +4,43 @@ var Rand = function(range) {
   return ((range+1) * Math.random()) | 0;
 }
 
+var Range = function(nums) {
+  this.nums = nums;
+};
+Range.prototype = {
+  rand: function(lim) {
+    var nums = this.nums,
+        opts = lim !== undefined ? nums.filter(function(x) {
+          return x <= lim;
+        }) : nums,
+        n = opts.length,
+        ix = Math.random() * n;
+    return opts[ix|0];
+  }
+};
+Range.fromAToB = function(a, b) {
+  var nums = [];
+  for (var i = a; i <= b; i++) {
+    nums.push(i);
+  }
+  return new Range(nums);
+};
+Range.parse = function(s) {
+  var i = s.indexOf('-');
+  if (i >= 0) {
+    var a = parseInt(s.substring(0, i)),
+        b = parseInt(s.substring(i+1));
+    return Range.fromAToB(a, b);
+  }
+
+  var nums = s.split(',').map(function(x) {
+    return parseInt(x.trim());
+  });
+
+  return new Range(nums);
+};
+
+
 var CenterContent = function(el) {
     var rect = el.getBoundingClientRect(),
         ww = window.innerWidth,
@@ -67,8 +104,8 @@ Problem.ops = [
     rand: function(range) {
       return new Problem(
         this,
-        Rand(range),
-        Rand(range)
+        range.rand(),
+        range.rand()
       );
     }
   },
@@ -78,11 +115,24 @@ Problem.ops = [
       return a - b;
     },
     rand: function(range) {
-      var a = Rand(range);
+      var a = range.rand();
       return new Problem(
         this,
         a,
-        Rand(a)
+        range.rand(a)
+      );
+    }
+  },
+  {
+    name: '×',
+    eval: function(a, b) {
+      return a * b;
+    },
+    rand: function(range) {
+      return new Problem(
+        this,
+        range.rand(),
+        range.rand()
       );
     }
   }
@@ -102,9 +152,10 @@ var Model = {
   endWasReached: new Signal,
 
   init: function(n) {
+    var rng = Range.fromAToB(0, 12);
     var problems = [];
     for (var i = 0; i < n; i++) {
-      problems.push(Problem.random(12));
+      problems.push(Problem.random(rng));
     }
     this.problems = problems;
     this.score = 0;
