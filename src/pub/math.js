@@ -1,9 +1,5 @@
 /** @jsx React.DOM */
 
-var Rand = function(range) {
-  return ((range+1) * Math.random()) | 0;
-}
-
 var Range = function(nums) {
   this.nums = nums;
 };
@@ -39,7 +35,6 @@ Range.parse = function(s) {
 
   return new Range(nums);
 };
-
 
 var CenterContent = function(el) {
     var rect = el.getBoundingClientRect(),
@@ -125,6 +120,7 @@ Problem.ops = [
   },
   {
     name: '×',
+    alias: '*',
     eval: function(a, b) {
       return a * b;
     },
@@ -137,13 +133,33 @@ Problem.ops = [
     }
   }
 ];
-Problem.random = function(range) {
-  var ops = this.ops,
-      op = ops[(Math.random()*ops.length)|0];
+Problem.random = function(ops, range) {
+  ops = ops || this.ops;
+  var op = ops[(Math.random()*ops.length)|0];
   return op.rand(range);
 };
 Problem.emtpy = function() {
   return new Problem(Problem.ops[0], 0, 0);
+};
+
+var ParamsFromUrl = function() {
+  var q = location.search;
+  if (q.charAt(0) == '?') {
+    q = q.substring(1);
+  }
+  var params = {
+    num: '20',
+    rng: '0-12',
+    ops: '+-*'
+  };
+  q.split('&').forEach(function(x) {
+    var p = x.split('=');
+    if (p.length != 2) {
+      return;
+    }
+    params[p[0]] = p[1];
+  });
+  return params;
 };
 
 var Model = {
@@ -151,12 +167,18 @@ var Model = {
 
   endWasReached: new Signal,
 
-  init: function(n) {
-    var rng = Range.fromAToB(0, 12);
+  init: function(numStr, opsStr, rngStr) {
+    var num = Math.max(5, parseInt(numStr)),
+        rng = Range.parse(rngStr),
+        ops = Problem.ops.filter(function(x) {
+          return opsStr.indexOf(x.name) >= 0 || opsStr.indexOf(x.alias) >= 0;
+        });
+
     var problems = [];
-    for (var i = 0; i < n; i++) {
-      problems.push(Problem.random(rng));
+    for (var i = 0; i < num; i++) {
+      problems.push(Problem.random(ops, rng));
     }
+
     this.problems = problems;
     this.score = 0;
     this.current = -1;
@@ -384,4 +406,5 @@ React.renderComponent(
   document.getElementById('root')
 );
 
-Model.init(20);
+var params = ParamsFromUrl();
+Model.init(params.num, params.ops, params.rng);
