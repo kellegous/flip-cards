@@ -106,6 +106,7 @@ Problem.ops = [
   },
   {
     name: '−',
+    alias: '-',
     eval: function(a, b) {
       return a - b;
     },
