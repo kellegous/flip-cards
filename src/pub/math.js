@@ -4,11 +4,9 @@ var Range = function(nums) {
   this.nums = nums;
 };
 Range.prototype = {
-  rand: function(lim) {
+  rand: function(filter) {
     var nums = this.nums,
-        opts = lim !== undefined ? nums.filter(function(x) {
-          return x <= lim;
-        }) : nums,
+        opts = filter ? nums.filter(filter) : nums,
         n = opts.length,
         ix = Math.random() * n;
     return opts[ix|0];
@@ -111,12 +109,9 @@ Problem.ops = [
       return a - b;
     },
     rand: function(range) {
-      var a = range.rand();
-      return new Problem(
-        this,
-        a,
-        range.rand(a)
-      );
+      var a = range.rand(),
+          b = range.rand();
+      return new Problem(this, a + b, a);
     }
   },
   {
@@ -131,6 +126,20 @@ Problem.ops = [
         range.rand(),
         range.rand()
       );
+    }
+  },
+  {
+    name: '÷',
+    alias: '/',
+    eval: function(a, b) {
+      return a / b;
+    },
+    rand: function(range) {
+      var a = range.rand(),
+          b = range.rand(function(x) {
+            return x > 0;
+          });
+      return new Problem(this, a * b, b);
     }
   }
 ];
