@@ -3,6 +3,8 @@ require 'open3'
 
 CLOSURE_URL = 'http://dl.google.com/closure-compiler/compiler-latest.zip'
 
+ENV['GOPATH'] = Dir.pwd
+
 file 'tmp/node_modules/react-tools/bin/jsx' do |t|
   Process.wait spawn('npm', 'install', 'react-tools', :chdir => 'tmp')
 end
@@ -64,3 +66,7 @@ task :default => [:setup] + FILES + [
   'pub/math.css',
   'pub/math.js',
 ]
+
+task :serve => [:setup] do
+  sh 'go', 'run', 'src/server/main.go'
+end

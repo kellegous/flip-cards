@@ -34,14 +34,6 @@ Range.parse = function(s) {
   return new Range(nums);
 };
 
-var CenterContent = function(el) {
-    var rect = el.getBoundingClientRect(),
-        ww = window.innerWidth,
-        wh = window.innerHeight;
-    el.style.setProperty('top', (wh/2 - rect.height/2) + 'px', '');
-    el.style.setProperty('left', (ww/2 - rect.width/2) + 'px', '');
-};
-
 var FormatNumber = function(n) {
   var s = '' + n,
       a = [];
@@ -292,14 +284,6 @@ var Card = React.createClass({
     return this.state.onFront ? this.refs.af : this.refs.ar;
   },
 
-  componentDidMount: function() {
-    var self = this;
-    window.addEventListener('resize', function() {
-      CenterContent(self.getDOMNode());
-    }, false);
-    CenterContent(self.getDOMNode());
-  },
-
   getInitialState: function() {
     return {
       face: Problem.emtpy(),
@@ -376,12 +360,6 @@ var Score = React.createClass({
 
   componentDidMount: function() {
     this.getDOMNode().style.setProperty('opacity', '0', '');
-
-    var self = this;
-    window.addEventListener('resize', function(event) {
-      CenterContent(self.getDOMNode());
-    }, false);
-    CenterContent(self.getDOMNode());
   },
 
   getInitialState: function() {
@@ -408,11 +386,51 @@ var Score = React.createClass({
   }
 });
 
+var Root = React.createClass({
+  layout: function() {
+    var rel = this.getDOMNode(),
+        cel = this.refs.card.getDOMNode(),
+        sel = this.refs.score.getDOMNode();
+
+    rel.style.removeProperty('transform');
+
+    var rect = cel.getBoundingClientRect(),
+        ww = window.innerWidth,
+        wh = window.innerHeight,
+        fx = Math.min(1.0, wh / (rect.height + 70)),
+        cw = rect.width * fx,
+        ch = rect.height * fx,
+        cx = ww / 2 - cw / 2,
+        cy = wh / 2 - ch / 2;
+
+    rel.style.setProperty('transform', 'scale(' + fx + ')', '');
+    rel.style.setProperty('transform-origin', 'top center', '');
+    cel.style.setProperty('left', cx + 'px', '');
+    cel.style.setProperty('top', cy + 'px', '');
+    sel.style.setProperty('left', cx + 'px', '');
+    sel.style.setProperty('top', cy + 'px', '');
+  },
+
+  componentDidMount: function() {
+    var self = this;
+    window.addEventListener('resize', function(event) {
+      self.layout();
+    }, false);
+    this.layout();
+  },
+
+  render: function() {
+    return (
+      <div>
+        <Card ref="card" />
+        <Score ref="score" />
+      </div>
+    );
+  }
+});
+
 React.renderComponent(
-  <div>
-    <Card />
-    <Score />
-  </div>,
+  <Root />,
   document.getElementById('root')
 );
 
